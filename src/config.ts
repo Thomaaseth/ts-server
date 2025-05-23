@@ -1,3 +1,5 @@
+import type { MigrationConfig } from "drizzle-orm/migrator";
+
 process.loadEnvFile();
 
 function envOrThrow(key: string): string {
@@ -8,12 +10,25 @@ function envOrThrow(key: string): string {
   return value;
 }
 
+const migrationConfig: MigrationConfig = {
+  migrationsFolder: "./src/db/migrations",
+};
+
 type APIConfig = {
   fileserverHits: number;
-  dbURL: string;
+  db: {
+    url: string,
+    migrationConfig: MigrationConfig,
+  };
+  platform: string;
 }
 
 export const config: APIConfig = {
   fileserverHits: 0,
-  dbURL: envOrThrow("DB_URL"),
+  db: {
+    url: envOrThrow("DB_URL"),
+    migrationConfig: migrationConfig,
+  },
+  platform: envOrThrow("PLATFORM")
 }
+
