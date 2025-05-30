@@ -21,6 +21,7 @@ type APIConfig = {
     migrationConfig: MigrationConfig,
   };
   platform: string;
+  secret: string;
 }
 
 export const config: APIConfig = {
@@ -29,6 +30,7 @@ export const config: APIConfig = {
     url: envOrThrow("DB_URL"),
     migrationConfig: migrationConfig,
   },
-  platform: envOrThrow("PLATFORM")
+  platform: envOrThrow("PLATFORM"),
+  secret: envOrThrow("SECRET")
 }
 
