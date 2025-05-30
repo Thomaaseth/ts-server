@@ -72,11 +72,11 @@ export async function handlerLogin(req: Request, res: Response) {
 
   const refreshTokenDB = {
     token: refreshToken,
-    created_at: now,
-    updated_at: now,
+    createdAt: now,
+    updatedAt: now,
     user_id: user.id,
-    expires_at: new Date(expiryDate),
-    revoked_at: null
+    expiresAt: new Date(expiryDate),
+    revokedAt: null
   }
 
   await db.insert(refresh_token).values(refreshTokenDB);
