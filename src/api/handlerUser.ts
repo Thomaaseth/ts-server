@@ -2,9 +2,9 @@ import type { Request, Response } from "express";
 import { BadRequestError, NotFoundError, UserNotAuthenticatedError } from "./errors.js";
 import { respondWithError, respondWithJSON } from "./handlerJson.js"
 import { createUser, getUser, getUserFromRefreshToken } from "../db/queries/createUser.js"
-import { hashPassword, checkPasswordHash, makeJWT, makeRefreshToken, getBearerToken } from "../auth/auth.js";
+import { hashPassword, checkPasswordHash, makeJWT, validateJWT, makeRefreshToken, getBearerToken } from "../auth/auth.js";
 import { config } from "../config.js";
-import { refresh_token } from "../db/schema.js";
+import { refresh_token, users } from "../db/schema.js";
 import { db } from "../db/index.js"
 import { eq } from "drizzle-orm";
 
@@ -168,3 +168,47 @@ export async function handlerRevoke(req: Request, res: Response) {
     
     return respondWithJSON(res, 204, "")
 }
+
+export async function handlerUserProfile(req: Request, res: Response) {
+  const accessToken = getBearerToken(req);
+  const userId = validateJWT(accessToken, config.secret)
+
+  if (!userId) {
+    throw new UserNotAuthenticatedError(`User not found`)
+  }
+
+  type parameters = {
+    email: string;
+    password: string;
+  }
+
+  const params: parameters = req.body;
+  
+  const updateObj: { email?: string, hashed_password?: string } = {};
+
+  if (params.email && params.email.trim() !== "") {
+    updateObj.email = params.email
+  } 
+  if (params.password && params.password.trim() !== "") {
+    const hashedPassword = await hashPassword(params.password)
+    updateObj.hashed_password = hashedPassword;
+  } 
+  if (Object.keys(updateObj).length === 0) {
+    throw new BadRequestError("Email and password not valid");
+  } else {
+    await db.update(users).set(updateObj).where(eq(users.id, userId))
+    const updatedUserArr = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    const updatedUser = updatedUserArr[0]
+
+    if (!updatedUser) {
+      throw new NotFoundError("User not found");
+    }
+    
+    return respondWithJSON(res, 200, {
+      id: updatedUser.id,
+      createdAt: updatedUser.createdAt,
+      updatedAt: updatedUser.updatedAt,
+      email: updatedUser.email,
+    })
+  }
+} 
