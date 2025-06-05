@@ -35,6 +35,7 @@ export async function handlerCreateUser(req: Request, res: Response) {
             createdAt: newUser.createdAt,
             updatedAt: newUser.updatedAt,
             email: newUser.email,
+            isChirpyRed: newUser.isChirpyRed
       });
     } catch (err) {
         throw new BadRequestError(
@@ -90,6 +91,7 @@ export async function handlerLogin(req: Request, res: Response) {
     email: user.email,
     token: accessToken,
     refreshToken: refreshToken,
+    isChirpyRed: user.isChirpyRed
   })
 }
 
@@ -209,6 +211,7 @@ export async function handlerUserProfile(req: Request, res: Response) {
       createdAt: updatedUser.createdAt,
       updatedAt: updatedUser.updatedAt,
       email: updatedUser.email,
+      isChirpyRed: updatedUser.isChirpyRed
     })
   }
 } 

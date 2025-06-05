@@ -12,6 +12,6 @@ export async function getOneChirp(id: string) {
 
 export async function deleteChirp(id: string, userID: string) {
     const result = await db.delete(chirps).where(and(eq(chirps.id, id), eq(chirps.user_id, userID)));
-    console.log(result)
+    console.log('Database delete result:', result);
     return result
 }

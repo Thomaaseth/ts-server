@@ -1,4 +1,5 @@
-import { pgTable, timestamp, varchar, uuid, text } from "drizzle-orm/pg-core";
+// import { boolean } from "drizzle-orm/gel-core";
+import { pgTable, timestamp, varchar, uuid, text, boolean } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -8,10 +9,12 @@ export const users = pgTable("users", {
     .defaultNow()
     .$onUpdate(() => new Date()),
   email: varchar("email", { length: 256 }).unique().notNull(),
-  hashed_password: varchar("hashed_password").notNull().default("unset")
+  hashed_password: varchar("hashed_password").notNull().default("unset"),
+  isChirpyRed: boolean("is_chirpy_red").default(false)
 });
 
 export type NewUser = typeof users.$inferInsert;
+export type User = typeof users.$inferSelect; 
 
 export const chirps = pgTable("chirps", {
   id: uuid("id").primaryKey().defaultRandom(),

@@ -70,24 +70,21 @@ export async function handlerDeleteChirp(req: Request, res: Response) {
   const accessToken = getBearerToken(req);
   const userId = validateJWT(accessToken, config.secret)
 
-  if (!userId) {
-    throw new UserForbiddenError(`User not authorized`)
-  }
-
-  if (!chirpID) {
-    throw new NotFoundError(`Chirp not found`)
-  }
-
   const chirpToDelete = await getOneChirp(chirpID)
-  if (!chirpToDelete) {
+
+  if (!chirpToDelete || chirpToDelete.length === 0) {
     throw new NotFoundError(`Chirp not found`)
   }
-  if (chirpToDelete[0].user_id === userId) {
-    const deletedChirp = await deleteChirp(chirpToDelete[0].id, userId);
-    if (deletedChirp.length != 0) {
-      respondWithJSON(res, 204, "")
-    } else {
-    throw new UserForbiddenError(`User not authorized`)
+
+  const chirp = chirpToDelete[0];
+
+  if (chirp.user_id !== userId) {
+    throw new UserForbiddenError('You can only delete your own chirps');
+
   }
+    const deletedChirp = await deleteChirp(chirpID, userId);
+    console.log('Delete result:', deletedChirp);
+
+    res.status(204).send();
+    
   }
-}
