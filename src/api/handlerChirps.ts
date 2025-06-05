@@ -46,8 +46,20 @@ export async function handlerCreateChirp(req: Request, res: Response) {
 }
 
 export async function handlerGetAllChirps(req: Request, res: Response) {
+    let authorId = "";
+    let authorIdQuery = req.query.authorId;
+    if (typeof authorIdQuery === "string") {
+      authorId = authorIdQuery;
+    }
+
+    let sort = "asc"
+    let sortQuery = req.query.sort;
+    if (typeof sortQuery === "string") {
+      sort = sortQuery;
+    }
+
     try {
-        const result = await getAllChirps()
+        const result = await getAllChirps(authorId, sort)
         respondWithJSON(res, 200, result)
     } catch (err) {
         throw new BadRequestError(`Error fetching all Chirps`)
